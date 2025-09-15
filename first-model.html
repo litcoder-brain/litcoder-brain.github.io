@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Encoding Model - LITCoder</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        /* Page-specific base styles (nav + header) */
+        .nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid rgba(148,163,184,0.2); margin-bottom: 2rem; }
+        .nav-logo { font-size: 1.5rem; font-weight: 800; background: linear-gradient(45deg,#22d3ee,#8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a { color: #64748b; text-decoration: none; transition: color .3s ease; font-weight: 500; }
+        .nav-links a:hover { color: #3b82f6; }
+
+        .tutorial-header { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 1px solid rgba(148,163,184,0.2); border-radius: 16px; padding: 2rem; margin: 1rem 0 2rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .tutorial-header h1 { font-size: 2.5rem; margin-bottom: .5rem; color: #0f172a; }
+        .tutorial-header p { color: #64748b; }
+
+        /* Simple blocks */
+        .simple-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 2rem; margin: 2rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .param-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0; }
+        .param-item { background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .param-item h4 { margin: 0 0 .5rem 0; color: #3b82f6; }
+        .param-item p { margin: 0; color: #64748b; font-size: .9rem; }
+
+        /* Code block */
+        .code-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin: 1rem 0; font-family: 'Monaco','Menlo','Ubuntu Mono',monospace; font-size: .9rem; line-height: 1.5; overflow-x: auto; white-space: pre; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-weight: 500; }
+        .code-block code { background: none; color: #1e293b; padding: 0; }
+
+        /* Typography smoothing */
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+        @media (max-width: 768px) {
+            .tutorial-header h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="nav">
+            <a href="index.html" class="nav-logo">LITCoder</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="tutorials.html">Tutorials</a>
+                <a href="https://arxiv.org/abs/2509.09152" target="_blank">Paper</a>
+                <a href="https://github.com/GT-LIT-Lab/LITCoder_release" target="_blank">GitHub</a>
+                <a href="https://wandb.ai/LITCoder" target="_blank">W&B</a>
+            </div>
+        </nav>
+
+        <header class="tutorial-header">
+            <h1>🧠 Building Your First Encoding Model</h1>
+            <p>Learn the fundamentals of neural encoding models with LITCoder</p>
+        </header>
+
+        <div class="simple-card">
+            <h2>1. Choose Your Parameters</h2>
+            <p>Start with these basic settings for your first model:</p>
+            <div class="param-grid">
+                <div class="param-item"><h4>Dataset</h4><p>Narratives (easiest to start with)</p></div>
+                <div class="param-item"><h4>Model</h4><p>GPT-2 small (fast and reliable)</p></div>
+                <div class="param-item"><h4>Layer</h4><p>Layer 9 (good middle layer)</p></div>
+                <div class="param-item"><h4>Downsampling</h4><p>Lanczos (recommended)</p></div>
+            </div>
+        </div>
+
+        <div class="simple-card">
+            <h2>2. Basic Code Example</h2>
+            <p>Here's a simple example of how to build an encoding model:</p>
+            <div class="code-block"><code># Create assembly for your dataset
+assembly = AssemblyGenerator.generate_assembly(
+    dataset_type="narratives",
+    data_dir="data/narratives/neural_data",
+    subject="sub-256",
+    tr=1.5,
+    lookback=256,
+    context_type="fullcontext"
+)
+
+# Extract features from language model
+extractor = LanguageModelFeatureExtractor({
+    "model_name": "gpt2-small",
+    "layer_idx": 9
+})
+
+# Downsample to brain timing
+downsampler = Downsampler()
+features = downsampler.downsample(
+    data=model_features,
+    method="lanczos"
+)
+
+# Apply FIR delays
+delayed_features = FIR.make_delayed(features, delays=range(1, 9))
+
+# Train the model
+metrics = fit_nested_cv(
+    features=delayed_features,
+    targets=brain_data,
+    n_outer_folds=5
+)</code></div>
+        </div>
+
+        <div class="simple-card">
+            <h2>3. What Happens Next</h2>
+            <p>After running your model, you'll get:</p>
+            <ul>
+                <li><strong>Correlation scores</strong> - How well your model predicts brain activity</li>
+                <li><strong>R² values</strong> - Proportion of variance explained</li>
+            </ul>
+        </div>
+
+        <div class="simple-card">
+            <h2>4. Next Steps</h2>
+            <p>Once you've built your first model:</p>
+            <ul>
+                <li><a href="model-comparison.html">Compare different models</a> <span style="background:#f59e0b;color:#fff;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;margin-left:0.5rem;">Coming Soon</span></li>
+                <li><a href="advanced.html">Try advanced techniques</a> <span style="background:#f59e0b;color:#fff;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;margin-left:0.5rem;">Coming Soon</span></li>
+                <li><a href="wandb.html">Track your experiments</a> <span style="background:#f59e0b;color:#fff;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;margin-left:0.5rem;">Coming Soon</span></li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div>© 2025 LITCoder Project — Georgia Tech</div>
+            <div style="font-size: 0.8rem; margin-top: 4px;">Authors: Taha Binhuraib, Ruimin Gao, Anna A. Ivanova</div>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutorials - LITCoder</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        /* Tutorials page specific styles */
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #22d3ee, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #3b82f6;
+        }
+
+        .tutorial-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .tutorial-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #22d3ee, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tutorial-header p {
+            font-size: 1.2rem;
+            color: #64748b;
+        }
+
+        .tutorial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .tutorial-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tutorial-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .tutorial-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #f59e0b);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .tutorial-card:hover::before {
+            opacity: 1;
+        }
+
+        .tutorial-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .tutorial-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .tutorial-card p {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .tutorial-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .duration, .difficulty {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .duration {
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .difficulty {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .tutorial-link {
+            display: inline-flex;
+            align-items: center;
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tutorial-link:hover {
+            color: #1d4ed8;
+            transform: translateX(4px);
+        }
+
+        .tutorial-section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .tutorial-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .tutorial-section h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #1e293b;
+            border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .tutorial-header h1 {
+                font-size: 2rem;
+            }
+            
+            .tutorial-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="nav">
+            <a href="index.html" class="nav-logo">LITCoder</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="https://arxiv.org/abs/2509.09152" target="_blank">Paper</a>
+                <a href="https://github.com/GT-LIT-Lab/LITCoder_release" target="_blank">GitHub</a>
+                <a href="https://wandb.ai/LITCoder" target="_blank">W&B</a>
+            </div>
+        </nav>
+
+        <header class="tutorial-header">
+            <h1>📚 LITCoder Tutorials</h1>
+            <p>Learn how to build and compare neural encoding models with step-by-step guides</p>
+        </header>
+
+        <section class="tutorial-grid">
+            <div class="tutorial-card">
+                <div class="tutorial-icon">🚀</div>
+                <h3>Quick Start</h3>
+                <p>Get up and running with LITCoder in 5 minutes. Set up your environment, organize data, and verify everything works.</p>
+                <div class="tutorial-meta">
+                    <span class="duration">5 min</span>
+                    <span class="difficulty">Beginner</span>
+                </div>
+                <a href="quickstart.html" class="tutorial-link">Start Tutorial →</a>
+            </div>
+
+            <div class="tutorial-card">
+                <div class="tutorial-icon">🧠</div>
+                <h3>Building Your First Encoding Model</h3>
+                <p>Learn the fundamentals of neural encoding models. Understand the pipeline, choose parameters, and build your first model.</p>
+                <div class="tutorial-meta">
+                    <span class="duration">15 min</span>
+                    <span class="difficulty">Beginner</span>
+                </div>
+                <a href="first-model.html" class="tutorial-link">Start Tutorial →</a>
+            </div>
+
+            <div class="tutorial-card">
+                <div class="tutorial-icon">📊</div>
+                <h3>Model Comparison & Evaluation</h3>
+                <p>Compare different models and evaluate performance. Learn cross-validation, metrics, and best practices.</p>
+                <div class="tutorial-meta">
+                    <span class="duration">20 min</span>
+                    <span class="difficulty">Intermediate</span>
+                </div>
+                <a href="model-comparison.html" class="tutorial-link">Start Tutorial →</a>
+            </div>
+
+            <div class="tutorial-card">
+                <div class="tutorial-icon">🔬</div>
+                <h3>Advanced Techniques</h3>
+                <p>Explore FIR kernels, downsampling methods, and advanced modeling techniques for better performance.</p>
+                <div class="tutorial-meta">
+                    <span class="duration">30 min</span>
+                    <span class="difficulty">Advanced</span>
+                </div>
+                <a href="advanced.html" class="tutorial-link">Start Tutorial →</a>
+            </div>
+
+            <div class="tutorial-card">
+                <div class="tutorial-icon">📈</div>
+                <h3>Experiment Tracking with W&B</h3>
+                <p>Integrate Weights & Biases for experiment management, visualization, and collaboration.</p>
+                <div class="tutorial-meta">
+                    <span class="duration">10 min</span>
+                    <span class="difficulty">Intermediate</span>
+                </div>
+                <a href="wandb.html" class="tutorial-link">Start Tutorial →</a>
+            </div>
+
+            <div class="tutorial-card">
+                <div class="tutorial-icon">🎯</div>
+                <h3>Custom Datasets</h3>
+                <p>Add your own brain imaging datasets to LITCoder. Learn the data format requirements and integration process.</p>
+                <div class="tutorial-meta">
+                    <span class="duration">50 min</span>
+                    <span class="difficulty">Advanced</span>
+                </div>
+                <a href="custom-datasets.html" class="tutorial-link">Start Tutorial →</a>
+            </div>
+        </section>
+
+        <!-- Getting Started Section -->
+        <section class="tutorial-section">
+            <h2>🎯 Getting Started</h2>
+            <p>New to LITCoder? Start with our Quick Start guide to get your environment set up, then move on to building your first encoding model.</p>
+            
+            <div style="display: flex; gap: 2rem; margin-top: 2rem;">
+                <a href="quickstart.html" class="tutorial-link" style="background: linear-gradient(45deg, #3b82f6, #8b5cf6); color: white; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; transition: transform 0.3s ease;">
+                    🚀 Quick Start
+                </a>
+                <a href="first-model.html" class="tutorial-link" style="background: linear-gradient(45deg, #8b5cf6, #f59e0b); color: white; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 600; transition: transform 0.3s ease;">
+                    🧠 First Model
+                </a>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div>© 2025 LITCoder Project — Georgia Tech</div>
+            <div style="font-size: 0.8rem; margin-top: 4px;">Authors: Taha Binhuraib, Ruimin Gao, Anna A. Ivanova</div>
+        </footer>
+    </div>
+</body>
+</html>

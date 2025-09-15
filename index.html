@@ -1,39 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Coming Soon</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
-      font-family: Arial, sans-serif;
-      color: #fff;
-      text-align: center;
-    }
-    .container {
-      max-width: 600px;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 3em;
-      margin-bottom: 10px;
-    }
-    p {
-      font-size: 1.2em;
-      opacity: 0.9;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LITcoder - Neural Encoding Models Library</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-  <div class="container">
-    <h1>🚀 Coming Soon</h1>
-  </div>
+    <div class="container">
+        <!-- Hero Section -->
+        <header class="hero">
+            <h1 class="logo">LITcoder</h1>
+            <p class="subtitle">A general-purpose library for building and comparing neural encoding models.</p>
+            <p class="description">Standardized pipelines for aligning stimuli with brain data, extracting features, and evaluating predictive models.</p>
+            
+            <div class="btn-group">
+                <a href="https://arxiv.org/abs/2509.09152" class="btn btn-primary" target="_blank" rel="noopener">
+                    📄 Read the Paper
+                </a>
+                <a href="https://github.com/GT-LIT-Lab/LITCoder_release" class="btn btn-secondary" target="_blank" rel="noopener">
+                    💻 GitHub
+                </a>
+                <a href="https://wandb.ai/neurotaha/lebel_language_models_final_2?nw=nwuserneurotaha" class="btn btn-secondary" target="_blank" rel="noopener">
+                    📊 Weights & Biases
+                </a>
+                <a href="tutorials.html" class="btn btn-secondary">
+                    📚 Tutorials
+                </a>
+            </div>
+        </header>
+
+        <!-- Feature Cards -->
+        <section class="feature-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon">📖</div>
+                    <h3 class="card-title">Open Source</h3>
+                </div>
+                <div class="card-content">MIT-licensed and free for academic and commercial use.</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon">🧩</div>
+                    <h3 class="card-title">Modular</h3>
+                </div>
+                <div class="card-content">Plug-and-play datasets, models, and evaluation strategies.</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon">⚡</div>
+                    <h3 class="card-title">Fast</h3>
+                </div>
+                <div class="card-content">Optimized for large-scale experiments with caching and parallel processing.</div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="icon">🔬</div>
+                    <h3 class="card-title">Research-Ready</h3>
+                </div>
+                <div class="card-content">Built for reproducibility with standardized evaluation metrics.</div>
+            </div>
+        </section>
+
+        <!-- Interactive Demo -->
+        <section class="demo-section">
+            <h2 class="demo-title">
+                <span class="icon">🧠</span>
+                Interactive: Test an encoding model (coming soon)
+            </h2>
+            
+            <div style="text-align: center; padding: 1rem; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; margin: 1rem 0; color: #92400e; font-weight: 600;">
+                🚧 Coming Soon!
+            </div>
+            
+            <div class="demo-grid">
+                <!-- Controls -->
+                <div class="controls">
+                    <div class="control-group">
+                        <label class="control-label">Dataset</label>
+                        <select id="dataset" class="control-input">
+                            <option value="narratives">Narratives</option>
+                            <option value="little_prince">Little Prince</option>
+                            <option value="lebel">LeBel</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Model</label>
+                        <select id="model" class="control-input">
+                            <option value="gpt2-small">GPT-2 Small</option>
+                            <option value="gpt2-medium">GPT-2 Medium</option>
+                            <option value="gpt2-large">GPT-2 Large</option>
+                            <option value="hubert-base">HuBERT Base</option>
+                            <option value="whisper-tiny">Whisper Tiny</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Downsampling Method</label>
+                        <select id="downsampling" class="control-input">
+                            <option value="lanczos">Lanczos</option>
+                            <option value="average" selected>Average</option>
+                            <option value="sum">Sum</option>
+                            <option value="last">Last Token</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Context Length</label>
+                        <input type="range" id="contextLength" class="slider" min="64" max="256" step="64" value="128">
+                        <div class="value-display" id="contextLengthValue">128 tokens</div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">FIR length (delays)</label>
+                        <input type="range" id="firLen" class="slider" min="1" max="9" step="1" value="4">
+                        <div class="value-display" id="firLenValue">4 delays</div>
+                    </div>
+                    
+                    <div class="play-controls">
+                        <button id="runBtn" class="btn btn-primary">🚀 See results</button>
+                        <button id="stopBtn" class="btn btn-secondary" style="display: none;">⏹ Stop</button>
+                    </div>
+                    
+                    <div class="correlation-display">
+                        <strong>Model Performance (r):</strong> 
+                        <span id="correlationValue">--</span>
+                    </div>
+                </div>
+
+                <!-- Brain Visualization -->
+                <div class="brain-container">
+                    <div class="control-label" style="margin-bottom: 8px;">Brain Activation Map</div>
+                    <div class="brain-image-container" id="brainImageContainer">
+                        <div class="brain-placeholder">
+                            <div class="icon">🧠</div>
+                            <p>Select parameters and click "Run Model" to see brain activation</p>
+                        </div>
+                    </div>
+                    <div class="value-display">Model: <span id="currentModel">--</span> | Dataset: <span id="currentDataset">--</span></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Datasets -->
+        <section class="demo-section">
+            <h2 class="demo-title">
+                <span class="icon">📊</span>
+                Supported Datasets
+            </h2>
+            <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin: 1rem 0;">
+                <div style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600;">Narratives</div>
+                <div style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600;">Little Prince</div>
+                <div style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600;">LeBel</div>
+            </div>
+        </section>
+        <!-- Footer -->
+        <footer class="footer">
+            <div>© 2025 LITCoder Project — Georgia Tech</div>
+            <div style="font-size: 0.8rem; margin-top: 4px;">Authors: Taha Binhuraib, Ruimin Gao, Anna A. Ivanova</div>
+        </footer>
+    </div>
 </body>
 </html>
-

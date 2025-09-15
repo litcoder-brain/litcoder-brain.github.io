@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Start - LITCoder</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        /* Page-specific base styles (nav + header) */
+        .nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid rgba(148,163,184,0.2); margin-bottom: 2rem; }
+        .nav-logo { font-size: 1.5rem; font-weight: 800; background: linear-gradient(45deg,#22d3ee,#8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-decoration: none; }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a { color: #64748b; text-decoration: none; transition: color .3s ease; font-weight: 500; }
+        .nav-links a:hover { color: #3b82f6; }
+
+        .tutorial-header { background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 1px solid rgba(148,163,184,0.2); border-radius: 16px; padding: 2rem; margin: 1rem 0 2rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .tutorial-header h1 { font-size: 2.5rem; margin-bottom: .5rem; color: #0f172a; }
+        .tutorial-header p { color: #64748b; }
+
+        /* Simple blocks */
+        .simple-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 2rem; margin: 2rem 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .step-number { display: inline-block; background: #3b82f6; color: white; width: 1.5rem; height: 1.5rem; border-radius: 50%; text-align: center; line-height: 1.5rem; font-weight: bold; margin-right: 0.5rem; font-size: 0.8rem; }
+
+        /* Code block */
+        .code-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin: 1rem 0; font-family: 'Monaco','Menlo','Ubuntu Mono',monospace; font-size: .9rem; line-height: 1.5; overflow-x: auto; white-space: pre; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-weight: 500; }
+        .code-block code { background: none; color: #1e293b; padding: 0; }
+
+        /* Directory tree */
+        .directory-tree { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; font-family: 'Monaco','Menlo','Ubuntu Mono',monospace; font-size: .85rem; line-height: 1.6; margin: 1rem 0; overflow-x: auto; white-space: pre; }
+
+        /* Warning */
+        .warning { background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+
+        /* Typography smoothing */
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+
+        @media (max-width: 768px) {
+            .tutorial-header h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav class="nav">
+            <a href="index.html" class="nav-logo">LITCoder</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="tutorials.html">Tutorials</a>
+                <a href="https://arxiv.org/abs/2509.09152" target="_blank">Paper</a>
+                <a href="https://github.com/GT-LIT-Lab/LITCoder_release" target="_blank">GitHub</a>
+                <a href="https://wandb.ai/LITCoder" target="_blank">W&B</a>
+            </div>
+        </nav>
+
+        <header class="tutorial-header">
+            <h1>🚀 Quick Start Guide</h1>
+            <p>Get LITCoder up and running in minutes</p>
+        </header>
+
+        <div class="simple-card">
+            <h2><span class="step-number">1</span>Install Dependencies</h2>
+            <p>Create a conda environment and install the required packages:</p>
+            <div class="code-block"><code>conda create -n litcoder -y python=3.12.8
+conda activate litcoder
+pip install -r requirements.txt</code></div>
+            <div class="warning">
+                <strong>Note:</strong> If you get "ModuleNotFoundError: No module named 'encoding'", run from the repo root or set: <code>PYTHONPATH=/path/to/lit_encoding</code>
+            </div>
+        </div>
+
+        <div class="simple-card">
+            <h2><span class="step-number">2</span>Preprocess Your Data</h2>
+            <p>Run fMRIPrep on your BIDS datasets:</p>
+            <div class="code-block"><code>fmriprep BIDS_DIR OUTPUT_DIR participant \
+  --participant_label PARTICIPANT \
+  --output-spaces MNI152NLin2009cAsym:res-2 \
+  --ignore slicetiming \
+  --skip_bids_validation \
+  --fs-no-reconall \
+  --nprocs 8</code></div>
+        </div>
+
+        <div class="simple-card">
+            <h2><span class="step-number">3</span>Organize Your Data</h2>
+            <p>Place your preprocessed data in these directories:</p>
+            <h3>Narratives</h3>
+            <div class="directory-tree"><code>data/narratives/neural_data/
+├── 21styear.report
+└── sub-256/
+    ├── sub-256_task-21styear_space-MNI152NLin2009cAsym_res-2_desc-preproc_bold.nii.gz
+    └── 21styear_align.csv</code></div>
+            <h3>Little Prince</h3>
+            <div class="directory-tree"><code>data/little_prince/neural_data/sub-EN058/
+├── lppEN_word_information.csv
+└── sub-EN058_task-lppEN_run-*.nii.gz</code></div>
+            <h3>LeBel</h3>
+            <div class="directory-tree"><code>data/lebel/neural_data/
+├── grids_huge.jbl
+├── trfiles_huge.jbl
+└── noslice_sub-*.pkl</code></div>
+        </div>
+
+        <div class="simple-card">
+            <h2><span class="step-number">4</span>Verify Setup</h2>
+            <p>Check that all required files are in place:</p>
+            <div class="code-block"><code># Check Narratives
+ls data/narratives/neural_data/21styear.report
+ls data/narratives/neural_data/sub-*/21styear_align.csv
+
+# Check Little Prince  
+ls data/little_prince/neural_data/sub-*/lppEN_word_information.csv
+
+# Check LeBel
+ls data/lebel/neural_data/grids_huge.jbl</code></div>
+        </div>
+
+        <div class="simple-card">
+            <h2><span class="step-number">5</span>Ready to Go!</h2>
+            <p>You're all set! Continue with:</p>
+            <ul>
+                <li><a href="first-model.html">Building Your First Encoding Model</a></li>
+                <li><a href="model-comparison.html">Model Comparison & Evaluation</a> <span style="background:#f59e0b;color:#fff;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;margin-left:0.5rem;">Coming Soon</span></li>
+                <li><a href="advanced.html">Advanced Techniques</a> <span style="background:#f59e0b;color:#fff;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;margin-left:0.5rem;">Coming Soon</span></li>
+            </ul>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div>© 2025 LITCoder Project — Georgia Tech</div>
+            <div style="font-size: 0.8rem; margin-top: 4px;">Authors: Taha Binhuraib, Ruimin Gao, Anna A. Ivanova</div>
+        </footer>
+    </div>
+</body>
+</html>
