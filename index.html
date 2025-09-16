@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LITcoder - Neural Encoding Models Library</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
     <link rel="stylesheet" href="styles/main.css">
 </head>
@@ -70,12 +71,8 @@
         <section class="demo-section">
             <h2 class="demo-title">
                 <span class="icon">🧠</span>
-                Interactive: Test an encoding model (coming soon)
+                Interactive: Test an encoding model
             </h2>
-            
-            <div style="text-align: center; padding: 1rem; background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; margin: 1rem 0; color: #92400e; font-weight: 600;">
-                🚧 Coming Soon!
-            </div>
             
             <div class="demo-grid">
                 <!-- Controls -->
@@ -83,43 +80,46 @@
                     <div class="control-group">
                         <label class="control-label">Dataset</label>
                         <select id="dataset" class="control-input">
+                            <option value="lebel" selected>LeBel</option>
                             <option value="narratives">Narratives</option>
-                            <option value="little_prince">Little Prince</option>
-                            <option value="lebel">LeBel</option>
+                            <option value="lpp">Little Prince (LPP)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Subject</label>
+                        <select id="subject" class="control-input">
+                            <option value="UTS03" selected>UTS03</option>
                         </select>
                     </div>
                     
                     <div class="control-group">
                         <label class="control-label">Model</label>
                         <select id="model" class="control-input">
-                            <option value="gpt2-small">GPT-2 Small</option>
-                            <option value="gpt2-medium">GPT-2 Medium</option>
-                            <option value="gpt2-large">GPT-2 Large</option>
-                            <option value="hubert-base">HuBERT Base</option>
-                            <option value="whisper-tiny">Whisper Tiny</option>
+                            <option value="gpt2-small" selected>GPT-2 Small</option>
+                            <option value="openai/whisper-tiny">Whisper Tiny</option>
+                            <option value="wordrate">Word Rate</option>
+                            <option value="word2vec">Word2Vec</option>
                         </select>
                     </div>
                     
                     <div class="control-group">
                         <label class="control-label">Downsampling Method</label>
-                        <select id="downsampling" class="control-input">
-                            <option value="lanczos">Lanczos</option>
-                            <option value="average" selected>Average</option>
-                            <option value="sum">Sum</option>
-                            <option value="last">Last Token</option>
+                        <select id="downsampling" class="control-input" disabled style="opacity: 0.5; cursor: not-allowed;">
+                            <option value="average" selected>🚧 Coming Soon</option>
                         </select>
                     </div>
                     
                     <div class="control-group">
                         <label class="control-label">Context Length</label>
-                        <input type="range" id="contextLength" class="slider" min="64" max="256" step="64" value="128">
-                        <div class="value-display" id="contextLengthValue">128 tokens</div>
+                        <input type="range" id="contextLength" class="slider" min="64" max="256" step="64" value="128" disabled style="opacity: 0.5; cursor: not-allowed;">
+                        <div class="value-display" id="contextLengthValue" style="opacity: 0.5;">🚧 Coming Soon (128)</div>
                     </div>
                     
                     <div class="control-group">
                         <label class="control-label">FIR length (delays)</label>
-                        <input type="range" id="firLen" class="slider" min="1" max="9" step="1" value="4">
-                        <div class="value-display" id="firLenValue">4 delays</div>
+                        <input type="range" id="firLen" class="slider" min="1" max="9" step="1" value="4" disabled style="opacity: 0.5; cursor: not-allowed;">
+                        <div class="value-display" id="firLenValue" style="opacity: 0.5;">🚧 Coming Soon (4)</div>
                     </div>
                     
                     <div class="play-controls">
@@ -128,8 +128,9 @@
                     </div>
                     
                     <div class="correlation-display">
-                        <strong>Model Performance (r):</strong> 
-                        <span id="correlationValue">--</span>
+                        <strong>Model Performance:</strong><br>
+                        Mean correlation (r): <span id="correlationValue">--</span><br>
+                        Max correlation: <span id="maxCorrelationValue">--</span>
                     </div>
                 </div>
 
@@ -139,11 +140,23 @@
                     <div class="brain-image-container" id="brainImageContainer">
                         <div class="brain-placeholder">
                             <div class="icon">🧠</div>
-                            <p>Select parameters and click "Run Model" to see brain activation</p>
+                            <p>Select parameters and click "See results" to view brain activation</p>
                         </div>
                     </div>
-                    <div class="value-display">Model: <span id="currentModel">--</span> | Dataset: <span id="currentDataset">--</span></div>
+                    <div class="value-display">
+                        Model: <span id="currentModel">--</span> | 
+                        Dataset: <span id="currentDataset">--</span> | 
+                        Subject: <span id="currentSubject">--</span>
+                    </div>
                 </div>
+            </div>
+            
+            <!-- Disclaimer -->
+            <div style="text-align: center; margin-top: 2rem; padding: 1rem; background: rgba(248, 250, 252, 0.5); border-radius: 8px; border: 1px solid rgba(148, 163, 184, 0.2);">
+                <p style="color: #64748b; font-size: 0.9rem; margin: 0; line-height: 1.5;">
+                    <strong>Note:</strong> This widget is a visual demonstration of how easy our tool is to test different encoding models. 
+                    More models, layers, and subjects will be supported soon. No scientific claims should be made based on these results. Please refer to the paper for any claims.
+                </p>
             </div>
         </section>
 
@@ -154,16 +167,311 @@
                 Supported Datasets
             </h2>
             <div style="display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; margin: 1rem 0;">
-                <div style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600;">Narratives</div>
-                <div style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600;">Little Prince</div>
                 <div style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600;">LeBel</div>
+                <div style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600;">Narratives</div>
+                <div style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600;">Little Prince (LPP)</div>
             </div>
         </section>
+        
         <!-- Footer -->
         <footer class="footer">
             <div>© 2025 LITCoder Project — Georgia Tech</div>
             <div style="font-size: 0.8rem; margin-top: 4px;">Authors: Taha Binhuraib, Ruimin Gao, Anna A. Ivanova</div>
         </footer>
     </div>
+
+    <script>
+        // Configuration for datasets, models, and subjects
+        const config = {
+            subjects: {
+                lebel: ['UTS03'],
+                narratives: ['sub-249'],
+                lpp: ['sub-62']
+            },
+            // Real data from W&B runs - embedded directly
+            data: {
+                lebel: {
+                    'UTS03': {
+                        'gpt2-small': {
+                            runId: 'wkumjirb',
+                            meanCorrelation: 0.1749794784225713,
+                            maxCorrelation: 0.764701078974079
+                        },
+                        'openai/whisper-tiny': {
+                            runId: 'jsbo6q59',
+                            meanCorrelation: 0.09724017637058704,
+                            maxCorrelation: 0.775705491107292
+                        },
+                        'wordrate': {
+                            runId: 'pv2fe43z',
+                            meanCorrelation: 0.04944175141207603,
+                            maxCorrelation: 0.707852187894939
+                        },
+                        'word2vec': {
+                            runId: 'v2yb1b7p',
+                            meanCorrelation: 0.09955207474611,
+                            maxCorrelation: 0.73704451963673
+                        }
+                    }
+                },
+                narratives: {
+                    'sub-249': {
+                        'gpt2-small': {
+                            runId: 'wtfdaol7',
+                            meanCorrelation: 0.06518725126310126,
+                            maxCorrelation: 0.518803751659506
+                        },
+                        'openai/whisper-tiny': {
+                            runId: 'yw5xnnpp',
+                            meanCorrelation: 0.030367974383371646,
+                            maxCorrelation: 0.5373253509738564
+                        },
+                        'wordrate': {
+                            runId: 'zx1xmyui',
+                            meanCorrelation: 0.0503713970906520,
+                            maxCorrelation: 0.55591181716609
+                        },
+                        'word2vec': {
+                            runId: 'fitsgowf',
+                            meanCorrelation: 0.04501576714340163,
+                            maxCorrelation: 0.46453522412146464
+                        }
+                    }
+                },
+                lpp: {
+                    'sub-62': {
+                        'gpt2-small': {
+                            runId: 'e397xd97',
+                            meanCorrelation: 0.1189442457904388,
+                            maxCorrelation: 0.623960160483412
+                        },
+                        'openai/whisper-tiny': {
+                            runId: 'f329t2pb',
+                            meanCorrelation: 0.092900699343448,
+                            maxCorrelation: 0.5431545800492158
+                        },
+                        'wordrate': {
+                            runId: 'n0am0qm2',
+                            meanCorrelation: 0.03635682131026542,
+                            maxCorrelation: 0.3206375278478705
+                        },
+                        'word2vec': {
+                            runId: 'mkbf9rym',
+                            meanCorrelation: 0.068642016981169,
+                            maxCorrelation: 0.4738104035814539
+                        }
+                    }
+                }
+            }
+        };
+
+        // DOM elements
+        const datasetSelect = document.getElementById('dataset');
+        const subjectSelect = document.getElementById('subject');
+        const modelSelect = document.getElementById('model');
+        const runBtn = document.getElementById('runBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const brainImageContainer = document.getElementById('brainImageContainer');
+        const correlationValue = document.getElementById('correlationValue');
+        const maxCorrelationValue = document.getElementById('maxCorrelationValue');
+        const currentModel = document.getElementById('currentModel');
+        const currentDataset = document.getElementById('currentDataset');
+        const currentSubject = document.getElementById('currentSubject');
+
+        // Update subjects based on dataset selection
+        function updateSubjects() {
+            const dataset = datasetSelect.value;
+            const subjects = config.subjects[dataset] || [];
+            
+            subjectSelect.innerHTML = '';
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                subjectSelect.appendChild(option);
+            });
+        }
+
+        // Get data for a specific run (no fetch needed)
+        function getModelData(dataset, subject, model) {
+            return config.data[dataset]?.[subject]?.[model] || null;
+        }
+
+        // Generate brain surface image URL - try to find any brain_surface_*.png file
+        function generateBrainImageURL(dataset, subject, model) {
+            const data = getModelData(dataset, subject, model);
+            if (!data) return null;
+            
+            // We'll try to load the image and if it fails, the error handler will show a fallback
+            return `artifacts/${data.runId}/brain_surface_all.png`;
+        }
+
+        // Try multiple possible brain image filenames with pattern matching
+        function tryLoadBrainImage(runId, dataset, subject, model) {
+            // First, let's try to find any file that starts with "brain_surface"
+            // We'll use a different approach - try common patterns
+            const patterns = [
+                'brain_surface_all.png',
+                'brain_surface_all_8_*.png', // Will try to match your pattern
+            ];
+            
+            // Since we can't list directory contents, we'll try the most common filename first
+            // and if that fails, show a helpful error
+            const img = new Image();
+            
+            img.onload = function() {
+                brainImageContainer.innerHTML = `
+                    <img src="artifacts/${runId}/brain_surface_all.png" alt="Brain surface activation" class="brain-image" style="max-width: 100%; height: auto;" />
+                `;
+                brainImageContainer.classList.remove('loading');
+            };
+            
+            img.onerror = function() {
+                console.log(`Failed to load brain_surface_all.png for ${runId}`);
+                brainImageContainer.innerHTML = `
+                    <div class="brain-placeholder">
+                        <div class="icon">🧠</div>
+                        <p>Brain image not found</p>
+                        <p style="font-size: 0.8rem; color: #94a3b8;">
+                            Expected: artifacts/${runId}/brain_surface_all.png<br>
+                            Please rename your image file to "brain_surface_all.png"
+                        </p>
+                    </div>
+                `;
+                brainImageContainer.classList.remove('loading');
+            };
+            
+            img.src = `artifacts/${runId}/brain_surface_all.png`;
+        }
+
+        // Show loading state
+        function showLoading() {
+            brainImageContainer.innerHTML = `
+                <div class="brain-placeholder">
+                    <div class="loading-spinner"></div>
+                    <p>Loading brain activation map...</p>
+                </div>
+            `;
+            brainImageContainer.classList.add('loading');
+        }
+
+        // Show brain image - now uses tryLoadBrainImage instead
+        function showBrainImage(imageUrl, dataset, subject, model) {
+            const data = getModelData(dataset, subject, model);
+            if (data) {
+                tryLoadBrainImage(data.runId, dataset, subject, model);
+            } else {
+                showError();
+            }
+        }
+
+        // Show error state
+        function showError() {
+            brainImageContainer.innerHTML = `
+                <div class="brain-placeholder">
+                    <div class="icon">❌</div>
+                    <p>Failed to load brain activation map</p>
+                </div>
+            `;
+            brainImageContainer.classList.remove('loading');
+        }
+
+        // Update correlation display
+        function updateCorrelation(dataset, subject, model) {
+            const data = getModelData(dataset, subject, model);
+            
+            if (data && data.meanCorrelation !== undefined) {
+                correlationValue.textContent = data.meanCorrelation.toFixed(3);
+                correlationValue.style.color = '#10b981'; // Green color
+            } else {
+                correlationValue.textContent = '--';
+                correlationValue.style.color = '#64748b';
+            }
+            
+            if (data && data.maxCorrelation !== undefined) {
+                maxCorrelationValue.textContent = data.maxCorrelation.toFixed(3);
+                maxCorrelationValue.style.color = '#10b981'; // Green color
+            } else {
+                maxCorrelationValue.textContent = '--';
+                maxCorrelationValue.style.color = '#64748b';
+            }
+        }
+
+        // Update display values
+        function updateDisplay() {
+            const dataset = datasetSelect.value;
+            const subject = subjectSelect.value;
+            const model = modelSelect.value;
+            
+            currentDataset.textContent = dataset;
+            currentSubject.textContent = subject;
+            currentModel.textContent = model;
+        }
+
+        // Run model simulation
+        function runModel() {
+            const dataset = datasetSelect.value;
+            const subject = subjectSelect.value;
+            const model = modelSelect.value;
+            
+            runBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-flex';
+            
+            showLoading();
+            updateDisplay();
+            
+            // Small delay to show loading animation
+            setTimeout(() => {
+                try {
+                    // Get the brain image URL
+                    const imageUrl = generateBrainImageURL(dataset, subject, model);
+                    
+                    if (imageUrl) {
+                        showBrainImage(imageUrl, dataset, subject, model);
+                    } else {
+                        showError();
+                    }
+                    
+                    updateCorrelation(dataset, subject, model);
+                    
+                } catch (error) {
+                    console.error('Error running model:', error);
+                    showError();
+                } finally {
+                    runBtn.style.display = 'inline-flex';
+                    stopBtn.style.display = 'none';
+                }
+            }, 800); // Short delay for UX
+        }
+
+        // Stop model simulation
+        function stopModel() {
+            runBtn.style.display = 'inline-flex';
+            stopBtn.style.display = 'none';
+            brainImageContainer.classList.remove('loading');
+        }
+
+        // Event listeners
+        datasetSelect.addEventListener('change', updateSubjects);
+        datasetSelect.addEventListener('change', updateDisplay);
+        subjectSelect.addEventListener('change', updateDisplay);
+        modelSelect.addEventListener('change', updateDisplay);
+        runBtn.addEventListener('click', runModel);
+        stopBtn.addEventListener('click', stopModel);
+
+        // Initialize and auto-load default model
+        function initialize() {
+            updateSubjects();
+            updateDisplay();
+            
+            // Auto-load GPT-2 Small for LeBel on page load
+            setTimeout(() => {
+                runModel();
+            }, 500);
+        }
+
+        // Initialize
+        initialize();
+    </script>
 </body>
 </html>
