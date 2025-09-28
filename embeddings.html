@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Static Embeddings - LITCoder</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/tutorials.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="index.html" class="nav-logo">LITCoder</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="tutorials.html">Tutorials</a>
+                <a href="https://arxiv.org/abs/2509.09152" target="_blank">Paper</a>
+                <a href="https://github.com/GT-LIT-Lab/litcoder_core" target="_blank">GitHub</a>
+            </div>
+        </nav>
+
+        <header class="tutorial-header">
+            <h1>Static Embeddings Tutorial</h1>
+            <p>This tutorial shows how to train encoding models using static word embeddings with the LeBel assembly. Static embeddings provide pre-trained word representations that can be highly predictive of brain activity.</p>
+        </header>
+
+        <section class="tutorial-section">
+            <h2>Overview</h2>
+            <p>Static embeddings capture semantic relationships between words using pre-trained models like Word2Vec or GloVe. These embeddings provide rich semantic representations that can be highly predictive of brain activity.</p>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Key Components</h2>
+            <ul>
+                <li><strong>Assembly</strong>: Pre-packaged LeBel assembly containing brain data and stimuli</li>
+                <li><strong>Feature Extractor</strong>: StaticEmbeddingFeatureExtractor using pre-trained embeddings</li>
+                <li><strong>Embedding Models</strong>: Word2Vec, GloVe, or other static embedding models</li>
+                <li><strong>Downsampler</strong>: Aligns word-level features with brain data timing</li>
+                <li><strong>Model</strong>: Ridge regression with nested cross-validation</li>
+                <li><strong>Trainer</strong>: AbstractTrainer orchestrates the entire pipeline</li>
+            </ul>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Step-by-Step Tutorial</h2>
+
+            <h3>1. Load the Assembly</h3>
+            <pre class="code-block"><code class="language-python">from encoding.assembly.assembly_loader import load_assembly
+
+# Load the pre-packaged LeBel assembly
+assembly = load_assembly("assembly_lebel_uts03.pkl")</code></pre>
+
+            <h3>2. Create Static Embedding Feature Extractor</h3>
+            <pre class="code-block"><code class="language-python">from encoding.features.factory import FeatureExtractorFactory
+
+# You need to provide the path to your embedding file
+vector_path = "/path/to/your/embeddings.bin.gz"  # Replace with your path
+
+extractor = FeatureExtractorFactory.create_extractor(
+    modality="embeddings",
+    model_name="word2vec",  # Can be "word2vec", "glove", or any identifier
+    config={
+        "vector_path": vector_path,
+        "binary": True,  # Set to True for .bin files, False for .txt files
+        "lowercase": False,  # Set to True if your embeddings expect lowercase tokens
+        "oov_handling": "copy_prev",  # How to handle out-of-vocabulary words
+        "use_tqdm": True,  # Show progress bar
+    },
+    cache_dir="cache",
+)</code></pre>
+
+            <h3>3. Set Up Downsampler and Model</h3>
+            <pre class="code-block"><code class="language-python">from encoding.downsample.downsampling import Downsampler
+from encoding.models.nested_cv import NestedCVModel
+
+downsampler = Downsampler()
+model = NestedCVModel(model_name="ridge_regression")</code></pre>
+
+            <h3>4. Configure Training Parameters</h3>
+            <pre class="code-block"><code class="language-python"># FIR delays for hemodynamic response modeling
+fir_delays = [1, 2, 3, 4]
+
+# Trimming configuration for LeBel dataset
+trimming_config = {
+    "train_features_start": 10,
+    "train_features_end": -5,
+    "train_targets_start": 0,
+    "train_targets_end": None,
+    "test_features_start": 50,
+    "test_features_end": -5,
+    "test_targets_start": 40,
+    "test_targets_end": None,
+}
+
+# No additional downsampling configuration needed
+downsample_config = {}</code></pre>
+
+            <h3>5. Create and Run Trainer</h3>
+            <pre class="code-block"><code class="language-python">from encoding.trainer import AbstractTrainer
+
+trainer = AbstractTrainer(
+    assembly=assembly,
+    feature_extractors=[extractor],
+    downsampler=downsampler,
+    model=model,
+    fir_delays=fir_delays,
+    trimming_config=trimming_config,
+    use_train_test_split=True,
+    logger_backend="wandb",
+    wandb_project_name="lebel-embeddings",
+    dataset_type="lebel",
+    results_dir="results",
+    downsample_config=downsample_config,
+)
+
+metrics = trainer.train()
+print(f"Median correlation: {metrics.get('median_score', float('nan')):.4f}")</code></pre>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Understanding Static Embeddings</h2>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Key Parameters</h2>
+            <ul>
+                <li><strong>modality</strong>: "embeddings" - specifies the feature type</li>
+                <li><strong>model_name</strong>: "word2vec" - identifier for the extractor</li>
+                <li><strong>vector_path</strong>: Path to the embedding file</li>
+                <li><strong>binary</strong>: True for .bin files, False for .txt files</li>
+                <li><strong>lowercase</strong>: Whether to lowercase tokens before lookup</li>
+                <li><strong>oov_handling</strong>: How to handle out-of-vocabulary words</li>
+                <li><strong>use_tqdm</strong>: Whether to show progress bar</li>
+                <li><strong>cache_dir</strong>: "cache" - directory for caching</li>
+            </ul>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Embedding Models</h2>
+            <ul>
+                <li><strong>Word2Vec</strong>: Google News vectors, custom Word2Vec models</li>
+                <li><strong>GloVe</strong>: Stanford GloVe embeddings</li>
+                <li><strong>Custom embeddings</strong>: Any compatible embedding format</li>
+            </ul>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>File Formats</h2>
+            <ul>
+                <li><strong>Binary files (.bin)</strong>: Set <code>binary=True</code></li>
+                <li><strong>Text files (.txt)</strong>: Set <code>binary=False</code></li>
+                <li><strong>Compressed files (.gz)</strong>: Automatically handled</li>
+            </ul>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>OOV Handling</h2>
+            <ul>
+                <li><strong>"copy_prev"</strong>: Use the previous word's embedding</li>
+                <li><strong>"zero"</strong>: Use zero vector</li>
+                <li><strong>"random"</strong>: Use random vector</li>
+                <li><strong>"mean"</strong>: Use mean of all embeddings</li>
+            </ul>
+            <p>Choose based on your research question and data characteristics.</p>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Training Configuration</h2>
+            <ul>
+                <li><strong>fir_delays</strong>: [1, 2, 3, 4] - temporal delays for hemodynamic response</li>
+                <li><strong>trimming_config</strong>: LeBel-specific trimming to avoid boundary effects</li>
+                <li><strong>downsample_config</strong>: {} - no additional downsampling configuration needed</li>
+            </ul>
+        </section>
+
+        <footer class="footer">
+            <div>© 2025 LITCoder Project — Georgia Tech</div>
+            <div style="font-size: 0.8rem; margin-top: 4px;">Authors: Taha Binhuraib, Ruimin Gao, Anna A. Ivanova</div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html> 

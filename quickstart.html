@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quick Start - LITCoder</title>
     <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/tutorials.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
     <style>
         /* Page-specific base styles (nav + header) */
         .nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid rgba(148,163,184,0.2); margin-bottom: 2rem; }
@@ -22,8 +24,9 @@
         .step-number { display: inline-block; background: #3b82f6; color: white; width: 1.5rem; height: 1.5rem; border-radius: 50%; text-align: center; line-height: 1.5rem; font-weight: bold; margin-right: 0.5rem; font-size: 0.8rem; }
 
         /* Code block */
-        .code-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin: 1rem 0; font-family: 'Monaco','Menlo','Ubuntu Mono',monospace; font-size: .9rem; line-height: 1.5; overflow-x: auto; white-space: pre; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-weight: 500; }
-        .code-block code { background: none; color: #1e293b; padding: 0; }
+        .code-block { background: #1e293b; color: #e2e8f0; border: 1px solid rgba(59,130,246,0.2); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; font-family: 'Monaco','Menlo','Ubuntu Mono',monospace; font-size: .9rem; line-height: 1.5; overflow-x: auto; white-space: pre; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; font-weight: 500; }
+        .code-block code { background: none; color: inherit; padding: 0; }
+        .code-block code[class*="language-"] { color: #e2e8f0 !important; }
 
         /* Directory tree */
         .directory-tree { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; font-family: 'Monaco','Menlo','Ubuntu Mono',monospace; font-size: .85rem; line-height: 1.6; margin: 1rem 0; overflow-x: auto; white-space: pre; }
@@ -48,7 +51,7 @@
                 <a href="index.html">Home</a>
                 <a href="tutorials.html">Tutorials</a>
                 <a href="https://arxiv.org/abs/2509.09152" target="_blank">Paper</a>
-                <a href="https://github.com/GT-LIT-Lab/litcoder_brain" target="_blank">GitHub</a>
+                <a href="https://github.com/GT-LIT-Lab/litcoder_core" target="_blank">GitHub</a>
                 <a href="https://wandb.ai/LITCoder" target="_blank">W&B</a>
             </div>
         </nav>
@@ -61,67 +64,85 @@
         <div class="simple-card">
             <h2><span class="step-number">1</span>Install Dependencies</h2>
             <p>Create a conda environment and install the required packages:</p>
-            <div class="code-block"><code>conda create -n litcoder -y python=3.12.8
+            <pre class="code-block"><code class="language-bash">git clone git@github.com:GT-LIT-Lab/litcoder_core.git
+cd litcoder_core
+conda create -n litcoder -y python=3.12.8
 conda activate litcoder
-pip install -r requirements.txt</code></div>
-            <div class="warning">
-                <strong>Note:</strong> If you get "ModuleNotFoundError: No module named 'encoding'", run from the repo root or set: <code>PYTHONPATH=/path/to/lit_encoding</code>
-            </div>
+conda install pip
+pip install -e .</code></pre>
+
         </div>
 
         <div class="simple-card">
-            <h2><span class="step-number">2</span>Preprocess Your Data</h2>
-            <p>Run fMRIPrep on your BIDS datasets:</p>
-            <div class="code-block"><code>fmriprep BIDS_DIR OUTPUT_DIR participant \
-  --participant_label PARTICIPANT \
-  --output-spaces MNI152NLin2009cAsym:res-2 \
-  --ignore slicetiming \
-  --skip_bids_validation \
-  --fs-no-reconall \
-  --nprocs 8</code></div>
+            <h2><span class="step-number">2</span>Download the LeBel Assembly</h2>
+            <p>Use the pre-packaged LeBel assembly to validate your setup quickly:</p>
+            <div class="code-block"><code class="language-bash">gdown 1q-XLPjvhd8doGFhYBmeOkcenS9Y59x64</code></div>
+        </div>
+
+        <div class="simple-card" id="minimal-example">
+            <h2><span class="step-number">3</span>Run the Minimal Example</h2>
+            <p>Fastest way to verify your setup using the LeBel assembly and word rate features:</p>
+            <pre class="code-block"><code class="language-python">from encoding.assembly.assembly_loader import load_assembly
+from encoding.features.factory import FeatureExtractorFactory
+from encoding.downsample.downsampling import Downsampler
+from encoding.models.nested_cv import NestedCVModel
+from encoding.trainer import AbstractTrainer
+
+# 1) Load prepackaged assembly
+assembly_path = "assembly_lebel_uts03.pkl"
+assembly = load_assembly(assembly_path)
+
+# 2) Configure components (wordrate-only)
+extractor = FeatureExtractorFactory.create_extractor(
+    modality="wordrate",
+    model_name="wordrate",
+    config={},
+    cache_dir="cache",
+)
+
+downsampler = Downsampler()
+model = NestedCVModel(model_name="ridge_regression")
+
+# FIR, downsampling, and trimming match our LeBel defaults
+fir_delays = [1, 2, 3, 4]
+trimming_config = {
+    "train_features_start": 10, "train_features_end": -5,
+    "train_targets_start": 0,  "train_targets_end": None,
+    "test_features_start": 50,  "test_features_end": -5,
+    "test_targets_start": 40,   "test_targets_end": None,
+}
+
+downsample_config = {}
+
+# 3) Train
+trainer = AbstractTrainer(
+    assembly=assembly,
+    feature_extractors=[extractor],
+    downsampler=downsampler,
+    model=model,
+    fir_delays=fir_delays,
+    trimming_config=trimming_config,
+    use_train_test_split=True,
+    logger_backend="wandb",
+    wandb_project_name="lebel-wordrate",
+    dataset_type="lebel",
+    results_dir="results",
+    downsample_config=downsample_config,
+)
+
+metrics = trainer.train()
+print({
+    "median_correlation": metrics.get("median_score", float("nan")),
+    "n_significant": metrics.get("n_significant"),
+})</code></pre>
         </div>
 
         <div class="simple-card">
-            <h2><span class="step-number">3</span>Organize Your Data</h2>
-            <p>Place your preprocessed data in these directories:</p>
-            <h3>Narratives</h3>
-            <div class="directory-tree"><code>data/narratives/neural_data/
-├── 21styear.report
-└── sub-256/
-    ├── sub-256_task-21styear_space-MNI152NLin2009cAsym_res-2_desc-preproc_bold.nii.gz
-    └── 21styear_align.csv</code></div>
-            <h3>Little Prince</h3>
-            <div class="directory-tree"><code>data/little_prince/neural_data/sub-EN058/
-├── lppEN_word_information.csv
-└── sub-EN058_task-lppEN_run-*.nii.gz</code></div>
-            <h3>LeBel</h3>
-            <div class="directory-tree"><code>data/lebel/neural_data/
-├── grids_huge.jbl
-├── trfiles_huge.jbl
-└── noslice_sub-*.pkl</code></div>
-        </div>
-
-        <div class="simple-card">
-            <h2><span class="step-number">4</span>Verify Setup</h2>
-            <p>Check that all required files are in place:</p>
-            <div class="code-block"><code># Check Narratives
-ls data/narratives/neural_data/21styear.report
-ls data/narratives/neural_data/sub-*/21styear_align.csv
-
-# Check Little Prince  
-ls data/little_prince/neural_data/sub-*/lppEN_word_information.csv
-
-# Check LeBel
-ls data/lebel/neural_data/grids_huge.jbl</code></div>
-        </div>
-
-        <div class="simple-card">
-            <h2><span class="step-number">5</span>Ready to Go!</h2>
+            <h2><span class="step-number">4</span>Ready to Go!</h2>
             <p>You're all set! Continue with:</p>
             <ul>
-                <li><a href="first-model.html">Building Your First Encoding Model</a></li>
-                <li><a href="model-comparison.html">Model Comparison & Evaluation</a> <span style="background:#f59e0b;color:#fff;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;margin-left:0.5rem;">Coming Soon</span></li>
-                <li><a href="advanced.html">Advanced Techniques</a> <span style="background:#f59e0b;color:#fff;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;margin-left:0.5rem;">Coming Soon</span></li>
+                <li><a href="wordrate.html">Word Rate Feature Tutorial</a></li>
+                <li><a href="language-models.html">Language Model Features</a></li>
             </ul>
         </div>
 
@@ -131,5 +152,7 @@ ls data/lebel/neural_data/grids_huge.jbl</code></div>
             <div style="font-size: 0.8rem; margin-top: 4px;">Authors: Taha Binhuraib, Ruimin Gao, Anna A. Ivanova</div>
         </footer>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Model Features - LITCoder</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/tutorials.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="index.html" class="nav-logo">LITCoder</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="tutorials.html">Tutorials</a>
+                <a href="https://arxiv.org/abs/2509.09152" target="_blank">Paper</a>
+                <a href="https://github.com/GT-LIT-Lab/litcoder_core" target="_blank">GitHub</a>
+            </div>
+        </nav>
+
+        <header class="tutorial-header">
+            <h1>Language Model Features Tutorial</h1>
+            <p>This tutorial shows how to train encoding models using language model features with the LeBel assembly. Language model features capture rich semantic representations from transformer models.</p>
+        </header>
+
+        <section class="tutorial-section">
+            <h2>Overview</h2>
+            <p>Language model features extract high-dimensional representations from transformer models like GPT-2. These features capture semantic, syntactic, and contextual information that can be highly predictive of brain activity.</p>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Key Components</h2>
+            <ul>
+                <li><strong>Assembly</strong>: Pre-packaged LeBel assembly containing brain data and stimuli</li>
+                <li><strong>Feature Extractor</strong>: LanguageModelFeatureExtractor using transformer models</li>
+                <li><strong>Caching</strong>: Multi-layer activation caching for efficient training</li>
+                <li><strong>Downsampler</strong>: Aligns word-level features with brain data timing</li>
+                <li><strong>Model</strong>: Ridge regression with nested cross-validation</li>
+                <li><strong>Trainer</strong>: AbstractTrainer orchestrates the entire pipeline</li>
+            </ul>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Step-by-Step Tutorial</h2>
+
+            <h3>1. Load the Assembly</h3>
+            <pre class="code-block"><code class="language-python">from encoding.assembly.assembly_loader import load_assembly
+
+# Load the pre-packaged LeBel assembly
+assembly = load_assembly("assembly_lebel_uts03.pkl")</code></pre>
+
+            <h3>2. Create Language Model Feature Extractor</h3>
+            <pre class="code-block"><code class="language-python">from encoding.features.factory import FeatureExtractorFactory
+
+extractor = FeatureExtractorFactory.create_extractor(
+    modality="language_model",
+    model_name="gpt2-small",  # Can be changed to other models
+    config={
+        "model_name": "gpt2-small",
+        "layer_idx": 9,  # Layer to extract features from
+        "last_token": True,  # Use last token only
+        "lookback": 256,  # Context lookback
+        "context_type": "fullcontext",
+    },
+    cache_dir="cache_language_model",
+)</code></pre>
+
+            <h3>3. Set Up Downsampler and Model</h3>
+            <pre class="code-block"><code class="language-python">from encoding.downsample.downsampling import Downsampler
+from encoding.models.nested_cv import NestedCVModel
+
+downsampler = Downsampler()
+model = NestedCVModel(model_name="ridge_regression")</code></pre>
+
+            <h3>4. Configure Training Parameters</h3>
+            <pre class="code-block"><code class="language-python"># FIR delays for hemodynamic response modeling
+fir_delays = [1, 2, 3, 4]
+
+# Trimming configuration for LeBel dataset
+trimming_config = {
+    "train_features_start": 10,
+    "train_features_end": -5,
+    "train_targets_start": 0,
+    "train_targets_end": None,
+    "test_features_start": 50,
+    "test_features_end": -5,
+    "test_targets_start": 40,
+    "test_targets_end": None,
+}
+
+# No additional downsampling configuration needed
+downsample_config = {}</code></pre>
+
+            <h3>5. Create and Run Trainer</h3>
+            <pre class="code-block"><code class="language-python">from encoding.trainer import AbstractTrainer
+
+trainer = AbstractTrainer(
+    assembly=assembly,
+    feature_extractors=[extractor],
+    downsampler=downsampler,
+    model=model,
+    fir_delays=fir_delays,
+    trimming_config=trimming_config,
+    use_train_test_split=True,
+    logger_backend="wandb",
+    wandb_project_name="lebel-language-model",
+    dataset_type="lebel",
+    results_dir="results",
+    layer_idx=9,  # Pass layer_idx to trainer
+    lookback=256,  # Pass lookback to trainer
+)
+
+metrics = trainer.train()
+print(f"Median correlation: {metrics.get('median_score', float('nan')):.4f}")</code></pre>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Understanding Language Model Features</h2>
+            <p>Language model features are extracted by:</p>
+            <ol>
+                <li><strong>Text Processing</strong>: Each stimulus text is tokenized and processed</li>
+                <li><strong>Transformer Forward Pass</strong>: The model processes the text through all layers</li>
+                <li><strong>Feature Extraction</strong>: Features are extracted from the specified layer</li>
+                <li><strong>Caching</strong>: Multi-layer activations are cached for efficiency</li>
+                <li><strong>Downsampling</strong>: Features are aligned with brain data timing</li>
+            </ol>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Key Parameters</h2>
+            <ul>
+                <li><code>modality</code>: "language_model" - specifies the feature type</li>
+                <li><code>model_name</code>: "gpt2-small" - transformer model to use</li>
+                <li><code>layer_idx</code>: 9 - which layer to extract features from</li>
+                <li><code>last_token</code>: True - use only the last token's features (we recommend using this)</li>
+                <li><code>lookback</code>: 256 - context window size</li>
+                <li><code>context_type</code>: "fullcontext" - how to handle context</li>
+                <li><code>cache_dir</code>: "cache_language_model" - directory for caching</li>
+            </ul>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Model Options</h2>
+            <ul>
+                <li><strong>gpt2-small</strong>: Fast, good baseline</li>
+                <li><strong>gpt2-medium</strong>: Better performance, slower</li>
+                <li><strong>facebook/opt-125m</strong>: Alternative architecture</li>
+                <li><strong>Other TransformerLens models</strong>: Any compatible model from <a href="https://transformerlensorg.github.io/TransformerLens/generated/model_properties_table.html" target="_blank">TransformerLens model properties table</a></li>
+            </ul>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Caching System</h2>
+            <p>The language model extractor uses a sophisticated caching system:</p>
+            <ol>
+                <li><strong>Multi-layer caching</strong>: All layers are cached together</li>
+                <li><strong>Lazy loading</strong>: Layers are loaded on-demand</li>
+                <li><strong>Efficient storage</strong>: Compressed storage of activations</li>
+                <li><strong>Cache validation</strong>: Ensures cached data matches parameters</li>
+            </ol>
+            <p>This makes it efficient to experiment with different layers without recomputing features.</p>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Training Configuration</h2>
+            <ul>
+                <li><strong>fir_delays</strong>: [1, 2, 3, 4] - temporal delays for hemodynamic response</li>
+                <li><strong>trimming_config</strong>: LeBel-specific trimming to avoid boundary effects</li>
+                <li><strong>layer_idx</strong>: 9 - which layer to use for training</li>
+                <li><strong>lookback</strong>: 256 - context window size</li>
+            </ul>
+        </section>
+
+        <footer class="footer">
+            <div>© 2025 LITCoder Project — Georgia Tech</div>
+            <div style="font-size: 0.8rem; margin-top: 4px;">Authors: Taha Binhuraib, Ruimin Gao, Anna A. Ivanova</div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html> 
