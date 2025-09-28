@@ -21,97 +21,93 @@
         </nav>
 
         <header class="tutorial-header">
-            <h1>🧱 Understanding Assemblies in LITCoder</h1>
-            <p>Assemblies organize brain data, stimuli, timing, and metadata for training encoding models.</p>
+            <h1>Understanding Assemblies in LITcoder</h1>
+            <p>An <strong>Assembly</strong> is the core data structure in LITcoder that organizes and manages brain imaging data, stimuli, and metadata for encoding model training. It's the foundation that everything else builds upon.</p>
         </header>
 
         <section class="tutorial-section">
             <h2>What is an Assembly?</h2>
-            <div class="concept-card">
-                <p>An <span class="highlight">Assembly</span> is a structured container that holds:</p>
-                <ul>
-                    <li><strong>Brain Data</strong>: Preprocessed fMRI aligned with stimuli</li>
-                    <li><strong>Stimuli</strong>: Text or audio presented during the experiment</li>
-                    <li><strong>Timing</strong>: TR times, precise word/audio times, and split indices</li>
-                    <li><strong>Metadata</strong>: Story names, subject info, and validation strategy</li>
-                </ul>
-            </div>
+            <p>An assembly is a structured container that holds all the data needed to train encoding models:</p>
+            <ul>
+                <li><strong>Brain Data</strong>: Recordings aligned with stimuli</li>
+                <li><strong>Stimuli</strong>: Text or audio stimuli presented during the experiment</li>
+                <li><strong>Timing Information</strong>: Precise timing of when each stimulus was presented</li>
+                <li><strong>Split Indices</strong>: Maps each word/stimulus to its corresponding TR (time repetition)</li>
+                <li><strong>Metadata</strong>: Story names, subject information, and experimental parameters</li>
+            </ul>
+            <p>Think of an assembly as a well-organized database that contains everything needed to train a brain encoding model.</p>
         </section>
 
         <section class="tutorial-section">
-            <h2>Why assemblies?</h2>
-            <div class="pipeline-step">
-                <div class="step-icon">🧩</div>
-                <div class="step-content">
-                    <h4>Single source of truth</h4>
-                    <p>Assemblies unify stimuli, timing, and neural data so downstream code can be simple and consistent across datasets.</p>
-                </div>
-            </div>
-            <div class="pipeline-step">
-                <div class="step-icon">🛡️</div>
-                <div class="step-content">
-                    <h4>Reproducibility</h4>
-                    <p>Validation methods and story ordering live with the data, preventing accidental leakage and ordering bugs.</p>
-                </div>
-            </div>
-            <div class="pipeline-step">
-                <div class="step-icon">🚀</div>
-                <div class="step-content">
-                    <h4>Performance</h4>
-                    <p>Pre-aligned, cached attributes enable fast iterations when swapping feature extractors and models.</p>
-                </div>
-            </div>
-
-            <div class="parameter-grid" style="margin-top: 1.5rem;">
-                <div class="param-card">
-                    <h4>Common use-cases</h4>
-                    <ul>
-                        <li>Quick baselines (e.g., word rate)</li>
-                        <li>Comparing model families across the same data</li>
-                        <li>Ablations with different trimming and FIR delays</li>
-                    </ul>
-                </div>
-                <div class="param-card">
-                    <h4>Pitfalls to avoid</h4>
-                    <ul>
-                        <li>Mismatched story ordering when concatenating</li>
-                        <li>Ignoring dataset-specific trimming recommendations</li>
-                        <li>Overriding validation method without understanding it</li>
-                    </ul>
-                </div>
-                <div class="param-card">
-                    <h4>Tips</h4>
-                    <ul>
-                        <li>Inspect <code>split_indices</code> to sanity-check alignment</li>
-                        <li>Start with packaged assemblies before building your own</li>
-                        <li>Cache heavy feature computations to speed up iteration</li>
-                    </ul>
-                </div>
-            </div>
+            <h2>Assembly Structure</h2>
+            <p>An assembly contains several key components:</p>
+            <p><strong>Stories</strong>: List of story/run names<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Each story represents a continuous experimental session (e.g., listening to a story)</p>
+            <p><strong>Story Data</strong>: Dictionary mapping story names to their data<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Contains brain data, stimuli, timing, and metadata for each story</p>
+            <p><strong>Timing Information</strong>:
+            <br>&nbsp;&nbsp;&nbsp;&nbsp; - <code>tr_times</code>: When each TR (time repetition) occurred
+            <br>&nbsp;&nbsp;&nbsp;&nbsp; - <code>data_times</code>: Precise timing for each data point (word-level)
+            <br>&nbsp;&nbsp;&nbsp;&nbsp; - <code>split_indices</code>: Maps each word to its corresponding TR</p>
+            <p><strong>Brain Data</strong>:
+            <br>&nbsp;&nbsp;&nbsp;&nbsp; - Preprocessed fMRI data aligned with stimuli
+            <br>&nbsp;&nbsp;&nbsp;&nbsp; - Shape: (n_timepoints, n_voxels/vertices)</p>
         </section>
 
         <section class="tutorial-section">
-            <h2>Load and Inspect an Assembly</h2>
+            <h2>Working with Assemblies</h2>
+            <p>Let's explore how to work with assemblies using the LeBel assembly:</p>
             <pre class="code-block"><code class="language-python">from encoding.assembly.assembly_loader import load_assembly
 
 # Load the pre-packaged LeBel assembly
 assembly = load_assembly("assembly_lebel_uts03.pkl")
 
+# Basic information
 print(f"Assembly shape: {assembly.shape}")
 print(f"Stories: {assembly.stories}")
 print(f"Validation method: {assembly.get_validation_method()}")</code></pre>
         </section>
 
         <section class="tutorial-section">
-            <h2>Exploring Contents</h2>
-            <pre class="code-block"><code class="language-python"># Overview
+            <h2>Key Assembly Methods</h2>
+            <p>Here are the most important methods for working with assemblies:</p>
+            <p><strong>Data Access</strong>:</p>
+            <ul>
+                <li><code>get_stimuli()</code>: Get text stimuli for each story</li>
+                <li><code>get_brain_data()</code>: Get brain data for each story</li>
+                <li><code>get_split_indices()</code>: Get word-to-TR mapping</li>
+                <li><code>get_tr_times()</code>: Get TR timing information</li>
+                <li><code>get_data_times()</code>: Get precise word-level timing</li>
+            </ul>
+            <p><strong>Story-Specific Data</strong>:</p>
+            <ul>
+                <li><code>get_temporal_baseline(story_name)</code>: Get temporal baseline features</li>
+                <li><code>get_audio_path()</code>: Get audio file paths (for speech models)</li>
+                <li><code>get_words()</code>: Get individual words for each story</li>
+                <li><code>get_word_rates()</code>: Get pre-computed word rates</li>
+            </ul>
+            <p><strong>Metadata</strong>:</p>
+            <ul>
+                <li><code>get_validation_method()</code>: Get validation strategy ("inner" or "outer")</li>
+                <li><code>stories</code>: List of story names</li>
+                <li><code>story_data</code>: Dictionary of story-specific data</li>
+            </ul>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Exploring Assembly Contents</h2>
+            <p>Let's examine what's inside an assembly:</p>
+            <pre class="code-block"><code class="language-python"># Load assembly
+assembly = load_assembly("assembly_lebel_uts03.pkl")
+
+# Basic information
 print("=== Assembly Overview ===")
 print(f"Total presentations: {assembly.shape[0]}")
 print(f"Number of voxels/vertices: {assembly.shape[1]}")
 print(f"Stories: {assembly.stories}")
 print(f"Validation method: {assembly.get_validation_method()}")
 
-# Per-story details
+# Explore each story
 print("\n=== Story Details ===")
 for story in assembly.stories:
     story_data = assembly.story_data[story]
@@ -122,15 +118,45 @@ for story in assembly.stories:
     print(f"  TR times: {len(story_data.tr_times)} TRs")
     print(f"  Data times: {len(story_data.data_times)} words")
 
-    # Peek at stimuli and alignment
+    # Show first few stimuli
     print(f"  First 3 stimuli: {story_data.stimuli[:3]}")
+
+    # Show split indices (these map words to TRs)
     print(f"  First 10 split indices: {story_data.split_indices[:10]}")
     print(f"  Last 10 split indices: {story_data.split_indices[-10:]}")</code></pre>
         </section>
 
         <section class="tutorial-section">
-            <h2>Story-Level Access</h2>
-            <pre class="code-block"><code class="language-python">story_name = assembly.stories[0]
+            <h2>Understanding the Data Flow</h2>
+            <ol>
+                <li><strong>Stimuli Extraction</strong>: Text is processed into features (embeddings, word rates, etc.)</li>
+                <li><strong>Timing Alignment</strong>: Features are aligned with brain data using timing information</li>
+                <li><strong>Downsampling</strong>: High-resolution features are downsampled to match brain data TR</li>
+                <li><strong>FIR Delays</strong>: Temporal delays are applied to account for hemodynamic response</li>
+                <li><strong>Train/Test Split</strong>: Data is split for proper evaluation</li>
+            </ol>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Assembly Attributes</h2>
+            <p>An assembly has several key attributes:</p>
+            <p><strong>Shape</strong>: (n_presentations, n_voxels/vertices)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Total number of timepoints and brain regions</p>
+            <p><strong>Stories</strong>: List of story names<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Each story represents a continuous experimental session</p>
+            <p><strong>Story Data</strong>: Dictionary of story-specific data<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Contains all the data for each story</p>
+            <p><strong>Coordinates</strong>: Metadata about presentations<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;Story IDs, stimulus IDs, etc.</p>
+            <p><strong>Validation Method</strong>: "inner" or "outer"<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;How the assembly handles train/test splits</p>
+        </section>
+
+        <section class="tutorial-section">
+            <h2>Working with Story Data</h2>
+            <p>Each story in an assembly contains:</p>
+            <pre class="code-block"><code class="language-python"># Get data for a specific story
+story_name = assembly.stories[0]
 story_data = assembly.story_data[story_name]
 
 print(f"Story: {story_name}")
@@ -140,6 +166,7 @@ print(f"  Split indices: {len(story_data.split_indices)}")
 print(f"  TR times: {len(story_data.tr_times)}")
 print(f"  Data times: {len(story_data.data_times)}")
 
+# Access specific data
 brain_data = story_data.brain_data
 stimuli = story_data.stimuli
 split_indices = story_data.split_indices
@@ -148,15 +175,18 @@ data_times = story_data.data_times</code></pre>
         </section>
 
         <section class="tutorial-section">
-            <h2>Using an Assembly in Training</h2>
+            <h2>Using Assemblies in Training</h2>
+            <p>Here's how assemblies are used in the training pipeline:</p>
             <pre class="code-block"><code class="language-python">from encoding.assembly.assembly_loader import load_assembly
 from encoding.features.factory import FeatureExtractorFactory
 from encoding.downsample.downsampling import Downsampler
 from encoding.models.nested_cv import NestedCVModel
 from encoding.trainer import AbstractTrainer
 
+# 1. Load assembly
 assembly = load_assembly("assembly_lebel_uts03.pkl")
 
+# 2. Create feature extractor
 extractor = FeatureExtractorFactory.create_extractor(
     modality="wordrate",
     model_name="wordrate",
@@ -164,9 +194,11 @@ extractor = FeatureExtractorFactory.create_extractor(
     cache_dir="cache",
 )
 
+# 3. Set up other components
 downsampler = Downsampler()
 model = NestedCVModel(model_name="ridge_regression")
 
+# 4. Configure training parameters
 fir_delays = [1, 2, 3, 4]
 trimming_config = {
     "train_features_start": 10,
@@ -179,6 +211,7 @@ trimming_config = {
     "test_targets_end": None,
 }
 
+# 5. Create trainer
 trainer = AbstractTrainer(
     assembly=assembly,
     feature_extractors=[extractor],
@@ -193,11 +226,13 @@ trainer = AbstractTrainer(
     results_dir="results",
 )
 
+# 6. Train the model
 metrics = trainer.train()
-print({
-    "median_correlation": metrics.get("median_score", float("nan")),
-    "n_significant": metrics.get("n_significant"),
-})</code></pre>
+print(f"Median correlation: {metrics.get('median_score', float('nan')):.4f}")</code></pre>
+        </section>
+
+        <section class="tutorial-section">
+            <p>This understanding of assemblies is crucial for effectively using LITcoder. The assembly serves as the foundation for all encoding model training, providing the structured interface between your experimental data and the machine learning pipeline.</p>
         </section>
 
         <footer class="footer">
